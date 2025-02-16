@@ -16,7 +16,7 @@ export class CompanyController {
   constructor(
     private readonly companyService: CompanyService
   ) {}
-
+  
   @Patch('/companies/update')
   @HttpCode(HttpStatus.OK)
   updateCompany(@Body() dto: CompanyDto): Promise<ProductsResponseDto> {
@@ -31,8 +31,8 @@ export class CompanyController {
       return response;
     })
     .catch( (error: Error) => {
-      if(error instanceof NotFoundException)
-        return new ProductsResponseDto(HttpStatus.NOT_FOUND, error.message, 0, []);
+      // if(error instanceof NotFoundException)
+      //   return new ProductsResponseDto(HttpStatus.NOT_FOUND, error.message, 0, []);
 
       if(error instanceof AlreadyExistException)
         return new ProductsResponseDto(HttpStatus.BAD_REQUEST, error.message, 0, []);
@@ -41,27 +41,6 @@ export class CompanyController {
       return new ProductsResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, error.message);
     })
   }
-
-  @Post('/companies/updateBatch')
-  @HttpCode(HttpStatus.OK)
-  updateCompanyBatch(@Body() dtoList: CompanyDto[]): Promise<ProductsResponseDto> {
-    this.logger.log(`>>> updateCompanyBatch: listSize=${dtoList.length}`);
-    const start = performance.now();
-
-    return this.companyService.updateCompanyBatch(dtoList)
-    .then( (processSummaryDto: ProcessSummaryDto) => {
-      const response = new ProductsResponseDto(HttpStatus.OK, "executed", undefined, processSummaryDto);
-      const end = performance.now();
-      this.logger.log(`<<< updateCompanyBatch: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
-      return response;
-    })
-    .catch( (error: Error) => {
-      this.logger.error(error.stack);
-      return new ProductsResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, error.message);
-    })
-
-  }
-  
 
   @Get('/companies')
   findCompanies(@Query() paginationDto: SearchPaginationDto, @Body() inputDto: SearchInputDto): Promise<ProductsResponseDto> {

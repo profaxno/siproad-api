@@ -9,11 +9,13 @@ import { Company } from './entities/company.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
+import { ReplicationModule } from 'src/replication/replication.module';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([Company, User], 'adminConn')
+    TypeOrmModule.forFeature([Company, User], 'adminConn'),
+    ReplicationModule
   ],
   controllers: [CompanyController, UserController],
   providers: [CompanyService, UserService],

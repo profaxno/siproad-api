@@ -1,6 +1,6 @@
 import { In, Like, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
-import { SearchInputDto, SearchPaginationDto } from 'profaxnojs/util';
+import { ProcessSummaryDto, SearchInputDto, SearchPaginationDto } from 'profaxnojs/util';
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +9,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyDto } from './dto/company.dto';
 import { Company } from './entities/company.entity';
 import { AlreadyExistException, IsBeingUsedException } from './exceptions/admin.exception';
+
+import { ReplicationService } from 'src/replication/replication.service';
+import { ProcessEnum, SourceEnum } from 'src/replication/enum';
+import { MessageDto, ReplicationDto } from 'src/replication/dto/replication.dto';
 
 @Injectable()
 export class CompanyService {
@@ -22,11 +26,38 @@ export class CompanyService {
 
     @InjectRepository(Company, 'adminConn')
     private readonly companyRepository: Repository<Company>,
+
+    private readonly replicationService: ReplicationService
     
   ){
     this.dbDefaultLimit = this.ConfigService.get("dbDefaultLimit");
   }
   
+  async updateCompanyBatch(dtoList: CompanyDto[]): Promise<ProcessSummaryDto>{
+    this.logger.warn(`updateCompanyBatch: starting process... listSize=${dtoList.length}`);
+    const start = performance.now();
+    
+    let processSummaryDto: ProcessSummaryDto = new ProcessSummaryDto(dtoList.length);
+    let i = 0;
+    for (const dto of dtoList) {
+      
+      await this.updateCompany(dto)
+      .then( () => {
+        processSummaryDto.rowsOK++;
+        processSummaryDto.detailsRowsOK.push(`(${i++}) name=${dto.name}, message=OK`);
+      })
+      .catch(error => {
+        processSummaryDto.rowsKO++;
+        processSummaryDto.detailsRowsKO.push(`(${i++}) name=${dto.name}, error=${error}`);
+      })
+
+    }
+    
+    const end = performance.now();
+    this.logger.log(`updateCompanyBatch: executed, runtime=${(end - start) / 1000} seconds`);
+    return processSummaryDto;
+  }
+
   updateCompany(dto: CompanyDto): Promise<CompanyDto> {
     if(!dto.id)
       return this.createCompany(dto); // * create
@@ -55,6 +86,10 @@ export class CompanyService {
       return this.saveCompany(entity)
       .then( (entity: Company) => {
         const dto = new CompanyDto(entity.name, entity.id); // * map to dto
+
+        // * replication data
+        const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.UPDATE, JSON.stringify(dto))]);
+        this.replicationService.sendMessages(replicationDto);
 
         const end = performance.now();
         this.logger.log(`updateCompany: executed, runtime=${(end - start) / 1000} seconds`);
@@ -98,6 +133,10 @@ export class CompanyService {
       return this.saveCompany(entity)
       .then( (entity: Company) => {
         const dto = new CompanyDto(entity.name, entity.id); // * map to dto
+
+        // * replication data
+        const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.UPDATE, JSON.stringify(dto))]);
+        this.replicationService.sendMessages(replicationDto);
 
         const end = performance.now();
         this.logger.log(`createCompany: OK, runtime=${(end - start) / 1000} seconds`);
@@ -195,6 +234,13 @@ export class CompanyService {
       // * delete
       return this.companyRepository.delete(id)
       .then( () => {
+
+        // * replication data
+        const entity = entityList[0];
+        const dto = new CompanyDto(entity.name, entity.id); // * map to dto
+        const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.DELETE, JSON.stringify(dto))]);
+        this.replicationService.sendMessages(replicationDto);
+
         const end = performance.now();
         this.logger.log(`removeCompany: OK, runtime=${(end - start) / 1000} seconds`);
         return 'deleted';

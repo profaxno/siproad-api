@@ -6,6 +6,8 @@ import { config } from './config/app.config';
 
 import { AdminModule } from './admin/admin.module';
 import { ProductsModule } from './products/products.module';
+import { ReplicationModule } from './replication/replication.module';
+import { OrdersModule } from './orders/orders.module';
 
 // TODO: HACER EL README
 @Module({
@@ -36,8 +38,21 @@ import { ProductsModule } from './products/products.module';
       synchronize: false,
       autoLoadEntities: true
     }),
+    TypeOrmModule.forRoot({
+      name: 'ordersConn',
+      type: 'mariadb',
+      host: process.env.ORDERS_DB_HOST,
+      port: Number(process.env.ORDERS_DB_PORT) || 3306,
+      username: process.env.ORDERS_DB_USERNAME,
+      password: process.env.ORDERS_DB_PASSWORD,
+      database: process.env.ORDERS_DB_NAME,
+      synchronize: false,
+      autoLoadEntities: true
+    }),
     AdminModule,
-    ProductsModule
+    ProductsModule,
+    OrdersModule,
+    ReplicationModule
   ],
   controllers: [],
   providers: [],

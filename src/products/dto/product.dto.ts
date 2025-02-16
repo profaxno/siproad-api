@@ -12,7 +12,7 @@ export class ProductDto {
   companyId: string;
 
   @IsString()
-  @MaxLength(60)
+  @MaxLength(45)
   name: string;
 
   @IsOptional()

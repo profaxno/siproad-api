@@ -1,6 +1,6 @@
 import { In, Like, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
-import { ProcessSummaryDto, SearchInputDto, SearchPaginationDto } from 'profaxnojs/util';
+import { SearchInputDto, SearchPaginationDto } from 'profaxnojs/util';
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -8,7 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { CompanyDto } from './dto/company.dto';
 import { Company } from './entities/company.entity';
-import { AlreadyExistException, IsBeingUsedException } from './exceptions/products.exception';
+import { AlreadyExistException, IsBeingUsedException } from './exceptions/orders.exception';
+
+import { ReplicationService } from 'src/replication/replication.service';
+import { ProcessEnum, SourceEnum } from 'src/replication/enum';
+import { MessageDto, ReplicationDto } from 'src/replication/dto/replication.dto';
 
 @Injectable()
 export class CompanyService {
@@ -20,13 +24,12 @@ export class CompanyService {
   constructor(
     private readonly ConfigService: ConfigService,
 
-    @InjectRepository(Company, 'productsConn')
-    private readonly companyRepository: Repository<Company>,
-    
+    @InjectRepository(Company, 'ordersConn')
+    private readonly companyRepository: Repository<Company>
   ){
     this.dbDefaultLimit = this.ConfigService.get("dbDefaultLimit");
   }
-
+  
   updateCompany(dto: CompanyDto): Promise<CompanyDto> {
     if(!dto.id)
       return this.createCompany(dto); // * create

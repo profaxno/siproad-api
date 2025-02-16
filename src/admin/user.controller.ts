@@ -25,17 +25,17 @@ export class UserController {
 
     return this.userService.updateUser(dto)
     .then( (dto: UserDto) => {
-      const response = new AdminResponseDto(HttpStatus.OK, 'created/updated', [dto]);
+      const response = new AdminResponseDto(HttpStatus.OK, 'created/updated', 1, [dto]);
       const end = performance.now();
       this.logger.log(`<<< updateUser: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
       return response;
     })
     .catch( (error: Error) => {
       if(error instanceof NotFoundException)
-        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, []);
+        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, 0, []);
       
       if(error instanceof AlreadyExistException)
-        return new AdminResponseDto(HttpStatus.BAD_REQUEST, error.message, []);
+        return new AdminResponseDto(HttpStatus.BAD_REQUEST, error.message, 0, []);
 
       this.logger.error(error.stack);
       return new AdminResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, error.message);
@@ -49,14 +49,14 @@ export class UserController {
     
     return this.userService.findUsers(companyId, paginationDto, inputDto)
     .then( (dtoList: UserDto[]) => {
-      const response = new AdminResponseDto(HttpStatus.OK, "executed", dtoList);
+      const response = new AdminResponseDto(HttpStatus.OK, "executed", dtoList.length, dtoList);
       const end = performance.now();
       this.logger.log(`<<< findUsers: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
       return response;
     })
     .catch( (error: Error) => {
       if(error instanceof NotFoundException)
-        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, []);
+        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, 0, []);
 
       this.logger.error(error.stack);
       return new AdminResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, error.message);
@@ -70,14 +70,14 @@ export class UserController {
 
     return this.userService.findOneUserByValue(companyId, value)
     .then( (dtoList: UserDto[]) => {
-      const response = new AdminResponseDto(HttpStatus.OK, "executed", dtoList);
+      const response = new AdminResponseDto(HttpStatus.OK, "executed", dtoList.length, dtoList);
       const end = performance.now();
       this.logger.log(`<<< findOneUserByValue: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
       return response;
     })
     .catch( (error: Error) => {
       if(error instanceof NotFoundException)
-        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, []);
+        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, 0, []);
 
       this.logger.error(error.stack);
       return new AdminResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, error.message);
@@ -99,10 +99,10 @@ export class UserController {
     })
     .catch( (error: Error) => {
       if(error instanceof NotFoundException)
-        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, []);
+        return new AdminResponseDto(HttpStatus.NOT_FOUND, error.message, 0, []);
       
       if(error instanceof IsBeingUsedException)
-        return new AdminResponseDto(HttpStatus.BAD_REQUEST, error.message, []);
+        return new AdminResponseDto(HttpStatus.BAD_REQUEST, error.message, 0, []);
 
       this.logger.error(error.stack);
       return new AdminResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, error.message);
