@@ -6,7 +6,7 @@ import { config } from './config/app.config';
 
 import { AdminModule } from './admin/admin.module';
 import { ProductsModule } from './products/products.module';
-import { ReplicationModule } from './replication/replication.module';
+import { DataReplicationModule } from './data-replication/data-replication.module';
 import { OrdersModule } from './orders/orders.module';
 
 // TODO: HACER EL README
@@ -52,7 +52,7 @@ import { OrdersModule } from './orders/orders.module';
     AdminModule,
     ProductsModule,
     OrdersModule,
-    ReplicationModule
+    DataReplicationModule
   ],
   controllers: [],
   providers: [],

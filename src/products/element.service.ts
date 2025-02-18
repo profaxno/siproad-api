@@ -71,7 +71,7 @@ export class ElementService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`updateElement: not executed (${msg})`);
         throw new NotFoundException(msg);
         //return new ProductsResponseDto(HttpStatus.NOT_FOUND, msg);    
@@ -136,7 +136,7 @@ export class ElementService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`createElement: not executed (${msg})`);
         throw new NotFoundException(msg);
         //return new ProductsResponseDto(HttpStatus.NOT_FOUND, msg);    

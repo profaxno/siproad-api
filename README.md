@@ -18,7 +18,7 @@ Api central del sistema siproad que permite gestionar elementos, productos y ord
 * Clonar el proyecto.
 * Clonar el archivo __.env.template__ y renombrar la copia a ```.env```
 * Configurar los valores de las variables de entornos correspondientes ```.env```
-* Ejecutar ```npm install```
+* Actualizar node_modules ```npm install```
 
 ### Configuración de la base de datos (docker)
 * Instalar Docker desktop.

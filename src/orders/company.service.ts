@@ -10,9 +10,9 @@ import { CompanyDto } from './dto/company.dto';
 import { Company } from './entities/company.entity';
 import { AlreadyExistException, IsBeingUsedException } from './exceptions/orders.exception';
 
-import { ReplicationService } from 'src/replication/replication.service';
-import { ProcessEnum, SourceEnum } from 'src/replication/enum';
-import { MessageDto, ReplicationDto } from 'src/replication/dto/replication.dto';
+import { DataReplicationService } from 'src/data-replication/data-replication.service';
+import { ProcessEnum, SourceEnum } from 'src/data-replication/enum';
+import { MessageDto, DataReplicationDto } from 'src/data-replication/dto/data-replication.dto';
 
 @Injectable()
 export class CompanyService {
@@ -65,6 +65,9 @@ export class CompanyService {
       
     })
     .catch(error => {
+      if(error instanceof AlreadyExistException)
+        throw error;
+      
       this.logger.error(`updateCompany: error`, error);
       throw error;
     })

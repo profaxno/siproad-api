@@ -3,18 +3,16 @@ import { ProcessSummaryDto, SearchInputDto, SearchPaginationDto } from 'profaxno
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { MessageDto, ReplicationDto } from './dto/replication.dto';
-import { ProcessEnum } from './enum/process.enum';
+import { MessageDto, DataReplicationDto } from './dto/data-replication.dto';
 import { SourceEnum } from './enum';
 
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
-import { env } from 'process';
 
 @Injectable()
-export class ReplicationService {
+export class DataReplicationService {
 
-  private readonly logger = new Logger(ReplicationService.name);
+  private readonly logger = new Logger(DataReplicationService.name);
   
   private readonly useLocalStack: boolean = false;
   private readonly awsHost: string = "";
@@ -56,20 +54,19 @@ export class ReplicationService {
     this.sqsClient = new SQSClient({ region: this.awsRegion});
   }
   
-  async sendMessages(replicationDto: ReplicationDto): Promise<ProcessSummaryDto> {
+  async sendMessages(dataReplicationDto: DataReplicationDto): Promise<ProcessSummaryDto> {
     this.logger.log(`sendMessages: process start...`);
     const start = performance.now();
 
-    let processSummaryDto: ProcessSummaryDto = new ProcessSummaryDto(replicationDto.messageList.length);
+    let processSummaryDto: ProcessSummaryDto = new ProcessSummaryDto(dataReplicationDto.messageList.length);
 
     if (processSummaryDto.totalRows === 0)
       return processSummaryDto; 
 
     // * process messages
     let rowProcessed = 0;
-    for (const messageDto of replicationDto.messageList) {
-      const message = JSON.stringify(messageDto);
-
+    for (const messageDto of dataReplicationDto.messageList) {
+      
       await this.sendMessage(messageDto)
       .then( (result: string) => {
         processSummaryDto.rowsOK++;

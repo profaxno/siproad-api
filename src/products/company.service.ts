@@ -62,6 +62,9 @@ export class CompanyService {
       
     })
     .catch(error => {
+      if(error instanceof AlreadyExistException)
+        throw error;
+      
       this.logger.error(`updateCompany: error`, error);
       throw error;
     })

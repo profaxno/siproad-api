@@ -24,7 +24,7 @@ export class ElementController {
 
     return this.elementService.updateElement(dto)
     .then( (dto: ElementDto) => {
-      const response = new ProductsResponseDto(HttpStatus.OK, 'created/updated', 1, [dto]);
+      const response = new ProductsResponseDto(HttpStatus.OK, 'executed', 1, [dto]);
       const end = performance.now();
       this.logger.log(`<<< updateElement: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
       return response;

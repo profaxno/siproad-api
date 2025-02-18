@@ -20,13 +20,13 @@ import { ProductService } from './product.service';
 import { Product } from './entities/product.entity';
 import { ProductElement } from './entities/product-element.entity';
 import { ProductFormula } from './entities/product-formula.entity';
-import { ReplicationModule } from 'src/replication/replication.module';
+import { DataReplicationModule } from 'src/data-replication/data-replication.module';
 
 @Module({
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([Company, Element, Formula, FormulaElement, Product, ProductElement, ProductFormula], 'productsConn'),
-    ReplicationModule
+    DataReplicationModule
   ],
   controllers: [CompanyController, ElementController, FormulaController, ProductController],
   providers: [CompanyService, ElementService, FormulaService, ProductService],

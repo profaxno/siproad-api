@@ -80,7 +80,7 @@ export class FormulaService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`updateFormula: not executed (${msg})`);
         throw new NotFoundException(msg);
         //return new ProductsResponseDto(HttpStatus.NOT_FOUND, msg);    
@@ -143,7 +143,7 @@ export class FormulaService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`createFormula: not executed (${msg})`);
         throw new NotFoundException(msg);
         //return new ProductsResponseDto(HttpStatus.NOT_FOUND, msg);    

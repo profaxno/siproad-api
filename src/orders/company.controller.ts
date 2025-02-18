@@ -24,7 +24,7 @@ export class CompanyController {
 
     return this.companyService.updateCompany(dto)
     .then( (dto: CompanyDto) => {
-      const response = new OrdersResponseDto(HttpStatus.OK, 'created/updated', 1, [dto]);
+      const response = new OrdersResponseDto(HttpStatus.OK, 'executed', 1, [dto]);
       const end = performance.now();
       this.logger.log(`<<< updateCompany: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
       return response;

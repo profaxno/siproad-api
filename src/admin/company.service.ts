@@ -10,9 +10,9 @@ import { CompanyDto } from './dto/company.dto';
 import { Company } from './entities/company.entity';
 import { AlreadyExistException, IsBeingUsedException } from './exceptions/admin.exception';
 
-import { ReplicationService } from 'src/replication/replication.service';
-import { ProcessEnum, SourceEnum } from 'src/replication/enum';
-import { MessageDto, ReplicationDto } from 'src/replication/dto/replication.dto';
+import { DataReplicationService } from 'src/data-replication/data-replication.service';
+import { ProcessEnum, SourceEnum } from 'src/data-replication/enum';
+import { MessageDto, DataReplicationDto } from 'src/data-replication/dto/data-replication.dto';
 
 @Injectable()
 export class CompanyService {
@@ -27,7 +27,7 @@ export class CompanyService {
     @InjectRepository(Company, 'adminConn')
     private readonly companyRepository: Repository<Company>,
 
-    private readonly replicationService: ReplicationService
+    private readonly replicationService: DataReplicationService
     
   ){
     this.dbDefaultLimit = this.ConfigService.get("dbDefaultLimit");
@@ -88,8 +88,11 @@ export class CompanyService {
         const dto = new CompanyDto(entity.name, entity.id); // * map to dto
 
         // * replication data
-        const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.UPDATE, JSON.stringify(dto))]);
-        this.replicationService.sendMessages(replicationDto);
+        const json = JSON.stringify(dto);
+        const messageToProducts = new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.PRODUCTS_COMPANY_UPDATE, json);
+        const messageToOrders   = new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.ORDERS_COMPANY_UPDATE, json);
+        const dataReplicationDto: DataReplicationDto = new DataReplicationDto([messageToProducts, messageToOrders]);
+        this.replicationService.sendMessages(dataReplicationDto);
 
         const end = performance.now();
         this.logger.log(`updateCompany: executed, runtime=${(end - start) / 1000} seconds`);
@@ -101,7 +104,7 @@ export class CompanyService {
     .catch(error => {
       if(error instanceof NotFoundException)
         throw error;
-
+      
       this.logger.error(`updateCompany: error`, error);
       throw error;
     })
@@ -135,8 +138,11 @@ export class CompanyService {
         const dto = new CompanyDto(entity.name, entity.id); // * map to dto
 
         // * replication data
-        const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.UPDATE, JSON.stringify(dto))]);
-        this.replicationService.sendMessages(replicationDto);
+        const json = JSON.stringify(dto);
+        const messageToProducts = new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.PRODUCTS_COMPANY_UPDATE, json);
+        const messageToOrders   = new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.ORDERS_COMPANY_UPDATE, json);
+        const dataReplicationDto: DataReplicationDto = new DataReplicationDto([messageToProducts, messageToOrders]);
+        this.replicationService.sendMessages(dataReplicationDto);
 
         const end = performance.now();
         this.logger.log(`createCompany: OK, runtime=${(end - start) / 1000} seconds`);
@@ -238,8 +244,11 @@ export class CompanyService {
         // * replication data
         const entity = entityList[0];
         const dto = new CompanyDto(entity.name, entity.id); // * map to dto
-        const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.DELETE, JSON.stringify(dto))]);
-        this.replicationService.sendMessages(replicationDto);
+        const json = JSON.stringify(dto);
+        const messageToProducts = new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.PRODUCTS_COMPANY_DELETE, json);
+        const messageToOrders   = new MessageDto(SourceEnum.API_ADMIN, ProcessEnum.ORDERS_COMPANY_DELETE, json);
+        const dataReplicationDto: DataReplicationDto = new DataReplicationDto([messageToProducts, messageToOrders]);
+        this.replicationService.sendMessages(dataReplicationDto);
 
         const end = performance.now();
         this.logger.log(`removeCompany: OK, runtime=${(end - start) / 1000} seconds`);

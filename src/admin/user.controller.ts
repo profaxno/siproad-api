@@ -25,7 +25,7 @@ export class UserController {
 
     return this.userService.updateUser(dto)
     .then( (dto: UserDto) => {
-      const response = new AdminResponseDto(HttpStatus.OK, 'created/updated', 1, [dto]);
+      const response = new AdminResponseDto(HttpStatus.OK, 'executed', 1, [dto]);
       const end = performance.now();
       this.logger.log(`<<< updateUser: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
       return response;

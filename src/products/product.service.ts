@@ -19,9 +19,9 @@ import { ProductFormula } from './entities/product-formula.entity';
 import { FormulaService } from './formula.service';
 import { Formula } from './entities/formula.entity';
 import { AlreadyExistException, IsBeingUsedException } from './exceptions/products.exception';
-import { MessageDto, ReplicationDto } from 'src/replication/dto/replication.dto';
-import { ProcessEnum, SourceEnum } from 'src/replication/enum';
-import { ReplicationService } from 'src/replication/replication.service';
+import { MessageDto, DataReplicationDto } from 'src/data-replication/dto/data-replication.dto';
+import { ProcessEnum, SourceEnum } from 'src/data-replication/enum';
+import { DataReplicationService } from 'src/data-replication/data-replication.service';
 
 @Injectable()
 export class ProductService {
@@ -50,7 +50,7 @@ export class ProductService {
 
     private readonly companyService: CompanyService,
     private readonly formulaService: FormulaService,
-    private readonly replicationService: ReplicationService
+    private readonly replicationService: DataReplicationService
     
   ){
     this.dbDefaultLimit = this.ConfigService.get("dbDefaultLimit");
@@ -95,7 +95,7 @@ export class ProductService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`updateProduct: not executed (${msg})`);
         throw new NotFoundException(msg);
       }
@@ -133,8 +133,8 @@ export class ProductService {
           .then( (dto: ProductDto) => {
 
             // * replication data
-            const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_PRODUCTS, ProcessEnum.UPDATE, JSON.stringify(dto))]);
-            this.replicationService.sendMessages(replicationDto);
+            const dataReplicationDto: DataReplicationDto = new DataReplicationDto([new MessageDto(SourceEnum.API_PRODUCTS, ProcessEnum.ORDERS_PRODUCT_UPDATE, JSON.stringify(dto))]);
+            this.replicationService.sendMessages(dataReplicationDto);
 
             const end = performance.now();
             this.logger.log(`updateProduct: executed, runtime=${(end - start) / 1000} seconds`);
@@ -168,7 +168,7 @@ export class ProductService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`createProduct: not executed (${msg})`);
         throw new NotFoundException(msg);
         //return new productsResponseDto(HttpStatus.NOT_FOUND, msg);
@@ -207,8 +207,8 @@ export class ProductService {
           .then( (dto: ProductDto) => {
   
             // * replication data
-            const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_PRODUCTS, ProcessEnum.UPDATE, JSON.stringify(dto))]);
-            this.replicationService.sendMessages(replicationDto);
+            const dataReplicationDto: DataReplicationDto = new DataReplicationDto([new MessageDto(SourceEnum.API_PRODUCTS, ProcessEnum.ORDERS_PRODUCT_UPDATE, JSON.stringify(dto))]);
+            this.replicationService.sendMessages(dataReplicationDto);
 
             const end = performance.now();
             this.logger.log(`createProduct: created OK, runtime=${(end - start) / 1000} seconds`);
@@ -316,8 +316,8 @@ export class ProductService {
         // * replication data
         const entity = entityList[0];
         const dto = new ProductDto(entity.company.id, entity.name, entity.cost, entity.price, entity.hasFormula, [], [], entity.id); // * map to dto
-        const replicationDto: ReplicationDto = new ReplicationDto([new MessageDto(SourceEnum.API_PRODUCTS, ProcessEnum.DELETE, JSON.stringify(dto))]);
-        this.replicationService.sendMessages(replicationDto);
+        const dataReplicationDto: DataReplicationDto = new DataReplicationDto([new MessageDto(SourceEnum.API_PRODUCTS, ProcessEnum.ORDERS_PRODUCT_DELETE, JSON.stringify(dto))]);
+        this.replicationService.sendMessages(dataReplicationDto);
 
         const end = performance.now();
         this.logger.log(`removeProduct: OK, runtime=${(end - start) / 1000} seconds`);

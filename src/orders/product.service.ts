@@ -47,7 +47,7 @@ export class ProductService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`updateProduct: not executed (${msg})`);
         throw new NotFoundException(msg);
       }
@@ -106,7 +106,7 @@ export class ProductService {
     .then( (companyList: Company[]) => {
 
       if(companyList.length == 0){
-        const msg = `company not found, id=${dto.id}`;
+        const msg = `company not found, id=${dto.companyId}`;
         this.logger.warn(`createProduct: not executed (${msg})`);
         throw new NotFoundException(msg);
         //return new productsResponseDto(HttpStatus.NOT_FOUND, msg);

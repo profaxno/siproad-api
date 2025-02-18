@@ -2,7 +2,7 @@ import { Type } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsIn, IsInt, IsNotEmpty, IsObject, IsOptional, IsPositive, IsString, ValidateNested } from "class-validator";
 import { ProcessEnum, SourceEnum } from "../enum";
 
-export class ReplicationDto {
+export class DataReplicationDto {
     @IsArray()
     @ArrayNotEmpty()
     @ValidateNested({ each: true })
@@ -18,7 +18,13 @@ export class MessageDto {
     @IsIn([SourceEnum.API_ADMIN, SourceEnum.API_PRODUCTS])
     source: string;
 
-    @IsIn([ProcessEnum.UPDATE, ProcessEnum.DELETE])
+    @IsIn([
+        ProcessEnum.PRODUCTS_COMPANY_UPDATE,
+        ProcessEnum.PRODUCTS_COMPANY_DELETE,
+        ProcessEnum.ORDERS_COMPANY_UPDATE, 
+        ProcessEnum.ORDERS_COMPANY_DELETE, 
+        ProcessEnum.ORDERS_PRODUCT_UPDATE,
+        ProcessEnum.ORDERS_PRODUCT_DELETE])
     process: string;
 
     @IsString()

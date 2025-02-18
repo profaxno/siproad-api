@@ -44,7 +44,7 @@ export class ProductController {
 
     return this.productService.updateProduct(dto)
     .then( (dto: ProductDto) => {
-      const response = new ProductsResponseDto(HttpStatus.OK, 'created/updated', 1, [dto]);
+      const response = new ProductsResponseDto(HttpStatus.OK, 'executed', 1, [dto]);
       const end = performance.now();
       this.logger.log(`<<< updateProduct: executed, runtime=${(end - start) / 1000} seconds, response=${JSON.stringify(response)}`);
       return response;
